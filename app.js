@@ -11,7 +11,7 @@ app.use(express.json());
 app.get('/health', async (req, res) => {
     try {
         await pool.query('SELECT 1');
-        ResizeObserver.JSON({ status: 'ok' });
+        res.json({ status: 'ok' });
     } catch {
         res.status(503).json({ status: 'db_unavailable'});
     }
