@@ -1,0 +1,20 @@
+{
+  "name": "linkly",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "migrate": "node migrate.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^18.0.8",
+    "express": "^4.22.3",
+    "morgan": "^1.12.1",
+    "pg": "^8.23.1",
+    "pino": "^10.4.0",
+    "zod": "^4.6.7"
+  }
+}
