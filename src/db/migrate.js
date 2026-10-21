@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const pool = require('./db');
-const logger = require('./logger');
+const pool = require('./index');
+const logger = require('../utils/logger');
 
 (async () => {
     try {

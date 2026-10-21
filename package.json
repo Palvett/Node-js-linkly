@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "migrate": "node migrate.js",
+    "db:migrate": "node src/db/migrate.js",
+    "db:migrate:test": "NODE_ENV=test node src/db/migrate.js",
     "test": "node --test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
