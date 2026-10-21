@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node src/server.js",
     "db:migrate": "node src/db/migrate.js",
     "db:migrate:test": "NODE_ENV=test node src/db/migrate.js",
     "test": "node --test",
