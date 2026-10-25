@@ -1,13 +1,13 @@
-const express = require('express');
-const morgan = require('morgan');
-const pool = require('./db');
+import express from 'express';
+import morgan from 'morgan';
+import { pool } from './db/index.js';
 
-const app = express();
+export const app = express();
 
 app.use(morgan('dev'));
 app.use(express.json());
 
-app.get('/health', async (req, res) => {
+app.get('/health', async (_req, res) => {
   try {
     await pool.query('SELECT 1');
     res.json({ status: 'ok' });
@@ -15,5 +15,3 @@ app.get('/health', async (req, res) => {
     res.status(503).json({ status: 'db_unavailable' });
   }
 });
-
-module.exports = app;
