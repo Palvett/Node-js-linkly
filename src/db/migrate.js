@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { pool } from './index.js';
-import { logger } from '../utils/logger.js';
+import { logger } from '../middlewares/logger.js';
 
 try {
   const sql = readFileSync(new URL('./schema.sql', import.meta.url), 'utf8');
