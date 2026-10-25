@@ -1,17 +1,14 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const pool = require('./index');
-const logger = require('../utils/logger');
+import { readFileSync } from 'node:fs';
+import { pool } from './index.js';
+import { logger } from '../utils/logger.js';
 
-(async () => {
-  try {
-    const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-    await pool.query(sql);
-    logger.info('Migration complete');
-  } catch (err) {
-    logger.error({ err }, 'Migration failed');
-    process.exitCode = 1;
-  } finally {
-    await pool.end();
-  }
-})();
+try {
+  const sql = readFileSync(new URL('./schema.sql', import.meta.url), 'utf8');
+  await pool.query(sql);
+  logger.info('Migration complete');
+} catch (err) {
+  logger.error({ err }, 'Migration failed');
+  process.exitCode = 1;
+} finally {
+  await pool.end();
+}
