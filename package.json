@@ -7,10 +7,12 @@
     "start": "node src/server.js",
     "db:migrate": "node src/db/migrate.js",
     "db:migrate:test": "NODE_ENV=test node src/db/migrate.js",
-    "test": "node --test",
+    "test": "NODE_ENV=test node --test --test-concurrency=1",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format:check": "prettier --check \"src/**/*.js\""
+    "format:check": "prettier --check \"src/**/*.js\"",
+    "pretest": "npm run db:migrate:test"
+    
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
