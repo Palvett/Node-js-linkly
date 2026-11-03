@@ -69,3 +69,59 @@ test('POST /links rejects a taken code (409)', async () => {
   const res = await post({ target_url: 'https://example.org', code: 'a1b' });
   assert.equal(res.status, 409);
 });
+
+test('Get /:code redirects (302) and count the click', async () => {
+  const res = await fetch(`${base}/a1b`, { redirect: 'manual' });
+  assert.equal(res.headers.get('location'), 'https://example.com');
+  const link = await (await fetch(`${base}/links/a1b`)).json();
+  assert.equal(link.click_count, 1);
+});
+
+test('GET /:code returns 404 for an unknown code', async () => {
+  assert.equal((await fetch(`${base}/nope`, { redirect: 'manual' })).status, 404);
+});
+
+test('GET /:code returns 410 for an expired link and does not count it', async () => {
+  await pool.query(`INSERT INTO links (code, target_url, expires_at) VALUES ('old', 'https://example.com', '2020-01-01T00:00:00Z')`);
+  assert.equal((await fetch(`${base}/old`, { redirect: 'manual' })).status, 410);
+  const { rows } = await pool.query(`SELECT click_count FROM links WHERE code = 'old'`);
+  assert.equal(rows[0].click_count, 0);
+});
+
+test('GET /links/:code/clicks is keyset-paginated', async () => {
+  for (let i = 0; i < 3; i++) await fetch(`${base}/a1b`, { redirect: 'manual' });
+
+  const page1 = await (await fetch(`${base}/links/a1b/clicks?limit=2`)).json();
+  assert.equal(page1.items.length, 2);
+  assert.ok(page1.next_cursor);
+
+  const page2 = await (await fetch(`${base}/links/a1b/clicks?limit=2&after=${page1.next_cursor}`)).json();
+  assert.equal(page2.items.length, 1);
+  assert.equal(page2.next_cursor, null);
+});
+
+test('GET /links/:code/clicks returns 404 for an unknown code', async () => {
+  assert.equal((await fetch(`${base}/links/nope/clicks`)).status, 404);
+});
+
+test('GET /links/:code/clicks.csv streams a CSV', async () => {
+  await fetch(`${base}/a1b`, { redirect: 'manual' });
+  const res = await fetch(`${base}/links/a1b/clicks.csv`);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('content-type'), 'text/csv');
+  const lines = (await res.text()).trim().split('\n');
+  assert.equal(lines[0], 'id,clicked_at,referrer,user_agent');
+  assert.equal(lines.length, 2);
+});
+
+test('DELETE /links/:code removes the link and its clicks', async () => {
+  await fetch(`${base}/a1b`, { redirect: 'manual' });
+  assert.equal((await fetch(`${base}/links/a1b`, { method: 'DELETE' })).status, 204);
+  assert.equal((await fetch(`${base}/links/a1b`)).status, 404);
+  const { rows } = await pool.query('SELECT count(*)::int AS n FROM clicks');
+  assert.equal(rows[0].n, 0);
+});
+
+test('DELETE /links/:code returns 404 for an unknown code', async () => {
+  assert.equal((await fetch(`${base}/links/nope`, { method: 'DELETE' })).status, 404);
+});
