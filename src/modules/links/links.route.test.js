@@ -125,3 +125,17 @@ test('DELETE /links/:code removes the link and its clicks', async () => {
 test('DELETE /links/:code returns 404 for an unknown code', async () => {
   assert.equal((await fetch(`${base}/links/nope`, { method: 'DELETE' })).status, 404);
 });
+
+test('click counter is atomic under concurrency', async () => {
+  const N = 50;
+  const responses = await Promise.all(Array.from({ length: N }, () => fetch(`${base}/a1b`, { redirect: 'manual' })));
+  assert.ok(responses.every((r) => r.status === 302));
+
+  const { rows } = await pool.query(
+    `SELECT l.click_count,
+            (SELECT count(*)::int FROM clicks WHERE link_id = l.id) AS logged
+     FROM links l WHERE l.code = 'a1b'`,
+  );
+  assert.equal(rows[0].click_count, N);
+  assert.equal(rows[0].logged, N);
+});
