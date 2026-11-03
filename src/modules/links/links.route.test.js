@@ -139,3 +139,29 @@ test('click counter is atomic under concurrency', async () => {
   assert.equal(rows[0].click_count, N);
   assert.equal(rows[0].logged, N);
 });
+
+test('SQL injection attempts stay harmless', async () => {
+  const evilUrl = "https://example.com/?x=1';DROP%20TABLE%20links;--";
+  const evilAgent = "'); DROP TABLE clicks; --";
+
+  // 1. Injection in the body is stored as plain text
+  const created = await post({ target_url: evilUrl, code: 'evil1' });
+  assert.equal(created.status, 201);
+
+  // 2. Injection in the path is rejected by Zod before it reaches SQL
+  const path = encodeURIComponent("a1b' OR '1'='1");
+  assert.equal((await fetch(`${base}/links/${path}`)).status, 400);
+
+  // 3. Injection in a header is stored as plain text
+  await fetch(`${base}/a1b`, { redirect: 'manual', headers: { 'User-Agent': evilAgent } });
+
+  // Both values came back verbatim or word for word exactly as it was written
+  const link = await pool.query('SELECT target_url FROM links WHERE code = $1', ['evil1']);
+  assert.equal(link.rows[0].target_url, evilUrl);
+  const click = await pool.query('SELECT user_agent FROM clicks');
+  assert.equal(click.rows[0].user_agent, evilAgent);
+
+  // And both tables still exist
+  const t = await pool.query(`SELECT to_regclass('public.links') AS l, to_regclass('public.clicks') AS c`);
+  assert.ok(t.rows[0].l && t.rows[0].c);
+});
