@@ -5,7 +5,7 @@ A URL shortener with click analytics. Express 5, PostgreSQL, Zod, `node:test`.
 ## Prerequisites
 
 - Node.js 24 (see `.nvmrc`)
-- PostgreSQL 16, or Docker with Compose
+- PostgreSQL 16
 
 ## Getting Started
 
@@ -33,14 +33,6 @@ cd Node-js-linkly
    npm run db:migrate
    npm start
    ```
-
-## Run with Docker
-
-```bash
-docker compose up --build
-```
-
-Starts a seeded Postgres and the app on `http://localhost:3000`. All config comes from environment variables (`DATABASE_URL`, `PORT`). Stop any local server on port 3000 first, or set `APP_PORT=3100`. Reset the data with `docker compose down -v`.
 
 ## Scripts
 
