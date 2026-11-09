@@ -2,6 +2,8 @@
 
 A URL shortener with click analytics. Express 5, PostgreSQL, Zod, `node:test`.
 
+Live: https://node-js-linkly.onrender.com(opens the Swagger docs)
+
 ## Prerequisites
 
 - Node.js 24 (see `.nvmrc`)
