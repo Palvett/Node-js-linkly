@@ -165,3 +165,9 @@ test('SQL injection attempts stay harmless', async () => {
   const t = await pool.query(`SELECT to_regclass('public.links') AS l, to_regclass('public.clicks') AS c`);
   assert.ok(t.rows[0].l && t.rows[0].c);
 });
+
+test('unknown route returns a JSON 404', async () => {
+  const res = await fetch(`${base}/links/a/b/c`);
+  assert.equal(res.status, 404);
+  assert.match(res.headers.get('content-type'), /json/);
+});
