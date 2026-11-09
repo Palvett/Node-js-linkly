@@ -17,7 +17,7 @@ cd Node-js-linkly
 ## Run locally
 
 1. Create two databases, `linkly` and `linkly_test`.
-2. Create `.env.development` (and `.env.test` for tests):
+2. Copy `.env.example` to `.env.development` (and to `.env.test` for tests), then fill in your database user and password:
 
    ```ini
    DATABASE_URL=postgres://USER:PASSWORD@localhost:5432/linkly
@@ -26,11 +26,11 @@ cd Node-js-linkly
 
    _Note: for `.env.test`, point the database name in `DATABASE_URL` at `linkly_test` instead of `linkly`._
 
-3. Install, migrate and start:
+3. Install, create the tables, load the sample data and start:
 
    ```bash
    npm ci
-   npm run db:migrate
+   npm run db:setup
    npm start
    ```
 
@@ -41,6 +41,8 @@ cd Node-js-linkly
 | `npm start`               | Start the server                         |
 | `npm run db:migrate`      | Apply `schema.sql` to the dev database   |
 | `npm run db:migrate:test` | Apply `schema.sql` to the test database  |
+| `npm run db:seed`         | Load sample links (safe to re-run)       |
+| `npm run db:setup`        | Migrate, then seed the dev database      |
 | `npm test`                | Migrate the test database, run the tests |
 | `npm run lint`            | ESLint                                   |
 | `npm run format:check`    | Prettier check                           |
