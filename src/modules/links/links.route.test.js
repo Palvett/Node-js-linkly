@@ -171,3 +171,9 @@ test('unknown route returns a JSON 404', async () => {
   assert.equal(res.status, 404);
   assert.match(res.headers.get('content-type'), /json/);
 });
+
+test('GET / redirects to the docs', async () => {
+  const res = await fetch(`${base}/`, { redirect: 'manual' });
+  assert.equal(res.status, 302);
+  assert.equal(res.headers.get('location'), '/docs');
+});

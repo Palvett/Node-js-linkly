@@ -12,6 +12,7 @@ export const app = express();
 app.use(morgan('dev'));
 app.use(express.json());
 
+app.get('/', (_req, res) => res.redirect('/docs'));
 app.use(healthcheckRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapi));
 app.use(linksRouter);
