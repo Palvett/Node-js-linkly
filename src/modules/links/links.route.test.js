@@ -191,3 +191,8 @@ test('expires_at keeps its time zone offset', async () => {
   const redirect = await fetch(`${base}/tz1`, { redirect: 'manual' });
   assert.equal(redirect.status, 302);
 });
+
+test('POST /links rejects an expiry in the past (400)', async () => {
+  const res = await post({ target_url: 'https://example.org', expires_at: '2020-01-01T00:00:00Z' });
+  assert.equal(res.status, 400);
+});

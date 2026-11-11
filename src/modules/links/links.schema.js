@@ -5,7 +5,10 @@ const codeSchema = z.string().regex(/^[A-Za-z0-9_-]{3,16}$/);
 export const createLinkSchema = z.object({
   target_url: z.url().refine((u) => /^https?:\/\//i.test(u), 'must be http(s)'),
   code: codeSchema.optional(),
-  expires_at: z.iso.datetime({ offset: true }).optional(),
+  expires_at: z.iso
+    .datetime({ offset: true })
+    .refine((value) => new Date(value) > new Date(), 'expires_at must be in the future')
+    .optional(),
 });
 
 export const codeParamsSchema = z.object({ code: codeSchema });

@@ -98,7 +98,7 @@ export const openapi = {
         properties: {
           target_url: { type: 'string', format: 'uri', description: 'http(s) URL only' },
           code: { type: 'string', pattern: '^[A-Za-z0-9_-]{3,16}$' },
-          expires_at: { type: 'string', format: 'date-time' },
+          expires_at: { type: 'string', format: 'date-time', description: 'Must be in the future' },
         },
       },
       Link: {
