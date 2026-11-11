@@ -177,3 +177,17 @@ test('GET / redirects to the docs', async () => {
   assert.equal(res.status, 302);
   assert.equal(res.headers.get('location'), '/docs');
 });
+
+test('expires_at keeps its time zone offset', async () => {
+  const instant = new Date(Date.now() + 2 * 60 * 60 * 1000);
+  instant.setMilliseconds(0);
+  // the same instant written as wall-clock time in UTC-05:00
+  const withOffset = new Date(instant.getTime() - 5 * 60 * 60 * 1000).toISOString().replace('.000Z', '-05:00');
+
+  const res = await post({ target_url: 'https://example.org', code: 'tz1', expires_at: withOffset });
+  assert.equal(res.status, 201);
+  assert.equal(new Date((await res.json()).expires_at).getTime(), instant.getTime());
+
+  const redirect = await fetch(`${base}/tz1`, { redirect: 'manual' });
+  assert.equal(redirect.status, 302);
+});
