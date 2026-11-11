@@ -1,10 +1,16 @@
 import { z } from 'zod';
 
+const RESERVED_CODES = new Set(['health', 'docs']);
+
 const codeSchema = z.string().regex(/^[A-Za-z0-9_-]{3,16}$/);
 
-export const createLinkSchema = z.object({
+// Express matches routes case-insensitively,  so /Docs also reaches Swagger.
+// Compare in lower case, and only on create: lookups should still return 404.
+const vanityCodeSchema = codeSchema.refine((c) => !RESERVED_CODES.has(c.toLowerCase()), 'code is reserved');
+
+export const createLinkSchema = z.strictObject({
   target_url: z.url().refine((u) => /^https?:\/\//i.test(u), 'must be http(s)'),
-  code: codeSchema.optional(),
+  code: vanityCodeSchema.optional(),
   expires_at: z.iso
     .datetime({ offset: true })
     .refine((value) => new Date(value) > new Date(), 'expires_at must be in the future')

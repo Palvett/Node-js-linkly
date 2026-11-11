@@ -7,6 +7,9 @@ let server;
 let base;
 
 before(async () => {
+  const { rows } = await pool.query('SELECT current_database() AS db');
+  assert.match(rows[0].db, /_test$/, `refusing to run tests against "${rows[0].db}"`);
+
   server = app.listen(0);
   await new Promise((resolve) => server.once('listening', resolve));
   base = `http://localhost:${server.address().port}`;
@@ -22,7 +25,7 @@ beforeEach(async () => {
 });
 
 after(async () => {
-  await new Promise((resolve) => server.close(resolve));
+  if (server) await new Promise((resolve) => server.close(resolve));
   await pool.end();
 });
 
@@ -195,4 +198,14 @@ test('expires_at keeps its time zone offset', async () => {
 test('POST /links rejects an expiry in the past (400)', async () => {
   const res = await post({ target_url: 'https://example.org', expires_at: '2020-01-01T00:00:00Z' });
   assert.equal(res.status, 400);
+});
+
+test('POST /links rejects reserved codes (400)', async () => {
+  for (const code of ['health', 'docs', 'Docs']) {
+    assert.equal((await post({ target_url: 'https://example.org', code })).status, 400);
+  }
+});
+
+test('POST /links rejects unknown fields (400)', async () => {
+  assert.equal((await post({ target_url: 'https://example.org', foo: 1 })).status, 400);
 });
