@@ -51,7 +51,10 @@ cd Node-js-linkly
 
 ## Endpoints
 
-Interactive docs: `http://localhost:3000/docs` (Swagger UI).
+Interactive docs (Swagger UI): [`/docs`](http://localhost:3000/docs)
+
+- **Live:** [Swagger UI](https://node-js-linkly.onrender.com/docs)
+- **Local:** [Swagger UI](http://localhost:3000/docs)
 
 | Method | Path                      | Success | Errors        |
 | ------ | ------------------------- | ------- | ------------- |
@@ -80,3 +83,4 @@ Index Scan using links_code_key on links  (cost=0.29..8.30 rows=1 width=37)
 ## Tests
 
 `npm test` runs against a disposable `linkly_test` database. It covers the endpoint contract, the atomic counter under 50 concurrent clicks, and a SQL injection regression. The `after` hook closes the server and the pool.
+The suite refuses to run unless the connected database name ends in `_test`, so a wrong `DATABASE_URL` can never wipe dev data. It also covers time zone offsets on `expires_at`, past expiry dates, reserved codes and unknown fields.
